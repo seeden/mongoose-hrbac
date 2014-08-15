@@ -1,6 +1,6 @@
 {
 	"name": "mongoose-hrbac",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Hierarchical Role Based Access Control for your mongoose models",
 	"author": {
 		"name": "Zlatko Fedor",

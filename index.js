@@ -2,6 +2,21 @@
 
 var _ = require('underscore');
 
+var getScope = exports.getScope = function(rbac, cb) {
+	var permissions = this.permissions || [];
+
+	rbac.getScope(this.role, function(err, scope) {
+		if(err) {
+			return cb(err);
+		}
+
+		scope = _.union(permissions, scope);
+		cb(null, scope);
+	});
+
+	return this;
+};
+
 /**
  * Check if user has assigned a specific permission 
  * @param  {RBAC}  rbac Instance of RBAC
@@ -10,7 +25,7 @@ var _ = require('underscore');
  * @return {Boolean}        
  */
 var can = exports.can = function(rbac, action, resource, cb) {
-	var self = this;
+	var _this = this;
 
 	//check existance of permission
 	rbac.getPermission(action, resource, function(err, permission) {
@@ -23,16 +38,16 @@ var can = exports.can = function(rbac, action, resource, cb) {
 		}
 
 		//check user additional permissions
-		if(_.indexOf(self.permissions, permission.getName()) !== -1) {
+		if(_.indexOf(_this.permissions, permission.getName()) !== -1) {
 			return cb(null, true);
 		}
 
-		if(!self.role) {
+		if(!_this.role) {
 			return cb(null, false);	
 		}
 
 		//check permission inside user role
-		rbac.can(self.role, action, resource, cb);
+		rbac.can(_this.role, action, resource, cb);
 	});
 
 	return this;
@@ -44,7 +59,7 @@ var can = exports.can = function(rbac, action, resource, cb) {
  * @param  {Function} cb Callback
  */
 var addPermission = exports.addPermission = function(rbac, action, resource, cb) {
-	var self = this;
+	var _this = this;
 
 	rbac.getPermission(action, resource, function(err, permission) {
 		if(err) {
@@ -55,12 +70,12 @@ var addPermission = exports.addPermission = function(rbac, action, resource, cb)
 			return cb(null, false);
 		}
 
-		if(_.indexOf(self.permissions, permission.getName()) !== -1) {
+		if(_.indexOf(_this.permissions, permission.getName()) !== -1) {
 			return cb(null, false);
 		}
 
-		self.permissions.push(permission.getName());
-		self.save(function(err, user) {
+		_this.permissions.push(permission.getName());
+		_this.save(function(err, user) {
 			if(err) {
 				return cb(err);
 			}
@@ -76,10 +91,7 @@ var addPermission = exports.addPermission = function(rbac, action, resource, cb)
 	return this;
 };
 
-
 var removePermission = exports.removePermission = function(permissionName, cb) {
-	var self = this;
-
 	if(_.indexOf(this.permissions, permissionName) === -1) {
 		return cb(null, false);
 	}
@@ -135,8 +147,6 @@ var hasRole = exports.hasRole = function(rbac, role, cb) {
 };
 
 var removeRole = exports.removeRole = function(cb) {
-	var self = this;
-
 	if(!this.role) {
 		return cb(null, false);
 	}
@@ -172,7 +182,7 @@ var removeRoleFromAllUsers = exports.removeRoleFromAllUsers = function(roleName,
 
 
 var setRole = exports.setRole = function(rbac, role, cb) {
-	var self = this;
+	var _this = this;
 
 	if(this.role === role) {
 		return cb(new Error('User already has assigned this role'));
@@ -188,8 +198,8 @@ var setRole = exports.setRole = function(rbac, role, cb) {
 			return cb(new Error('Role does not exists'));		
 		}
 
-		self.role = role.getName();
-		self.save(function(err, user) {
+		_this.role = role.getName();
+		_this.save(function(err, user) {
 			if(err) {
 				return cb(err);
 			}
@@ -198,16 +208,17 @@ var setRole = exports.setRole = function(rbac, role, cb) {
 				return cb(new Error('User is undefined'));
 			}
 
-			cb(null, user.role === self.role);
+			cb(null, user.role === _this.role);
 		});
 	});
 };
 
-module.exports = function permalinkPlugin (schema, options) {
+module.exports = function hrbacPlugin (schema, options) {
 	//prepare arguments
 	if(!options) {
 		options = {};
 	}
+
 
 	//prepare parameters
 	schema.add({
@@ -226,7 +237,8 @@ module.exports = function permalinkPlugin (schema, options) {
 	schema.methods.removeRole = removeRole;
 	schema.methods.setRole = setRole;
 
+	schema.methods.getScope = getScope;
+
 	schema.statics.removeRoleFromAllUsers = removeRoleFromAllUsers;
 	schema.statics.removePermissionFromAllUsers = removePermissionFromAllUsers;
 };
-
