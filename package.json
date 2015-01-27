@@ -1,6 +1,6 @@
 {
 	"name": "mongoose-hrbac",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Hierarchical Role Based Access Control for your mongoose models",
 	"author": {
 		"name": "Zlatko Fedor",
@@ -24,11 +24,10 @@
 			"url": "http://www.opensource.org/licenses/MIT"
 		}
 	],
-	"main": "./lib/",
 	"engines": {
 		"node": ">= 0.10.0"
 	},
 	"dependencies": {
-		"rbac": "~2.1.4"
+		"underscore": "~1.7.0"
 	}
 }

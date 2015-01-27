@@ -2,7 +2,7 @@
 
 var _ = require('underscore');
 
-var getScope = exports.getScope = function(rbac, cb) {
+function getScope(rbac, cb) {
 	var permissions = this.permissions || [];
 
 	rbac.getScope(this.role, function(err, scope) {
@@ -15,7 +15,7 @@ var getScope = exports.getScope = function(rbac, cb) {
 	});
 
 	return this;
-};
+}
 
 /**
  * Check if user has assigned a specific permission 
@@ -24,7 +24,7 @@ var getScope = exports.getScope = function(rbac, cb) {
  * @param  {String}   resource  Name of resource 
  * @return {Boolean}        
  */
-var can = exports.can = function(rbac, action, resource, cb) {
+function can(rbac, action, resource, cb) {
 	var _this = this;
 
 	//check existance of permission
@@ -51,14 +51,14 @@ var can = exports.can = function(rbac, action, resource, cb) {
 	});
 
 	return this;
-};
+}
 
 /**
  * Assign additional permissions to the user
  * @param  {String|Array}   permissions  Array of permissions or string representing of permission
  * @param  {Function} cb Callback
  */
-var addPermission = exports.addPermission = function(rbac, action, resource, cb) {
+function addPermission(rbac, action, resource, cb) {
 	var _this = this;
 
 	rbac.getPermission(action, resource, function(err, permission) {
@@ -89,9 +89,9 @@ var addPermission = exports.addPermission = function(rbac, action, resource, cb)
 	});
 
 	return this;
-};
+}
 
-var removePermission = exports.removePermission = function(permissionName, cb) {
+function removePermission(permissionName, cb) {
 	if(_.indexOf(this.permissions, permissionName) === -1) {
 		return cb(null, false);
 	}
@@ -114,11 +114,16 @@ var removePermission = exports.removePermission = function(permissionName, cb) {
 	});
 
 	return this;
-};
+}
 
-
-var removePermissionFromAllUsers = exports.removePermissionFromAllUsers = function(permissionName, cb) {
-	this.update({permissions: permissionName}, {$pull: {permissions: permissionName}}, {multi: true}, function(err, num) {
+function removePermissionFromAllUsers(permissionName, cb) {
+	this.update({
+		permissions: permissionName
+	}, {
+		$pull: {
+			permissions: permissionName
+		}
+	}, { multi: true }, function(err, num) {
 		if(err) {
 			return cb(err);
 		}
@@ -127,8 +132,7 @@ var removePermissionFromAllUsers = exports.removePermissionFromAllUsers = functi
     });
 
 	return this;
-};
-
+}
 
 /**
  * Check if user has assigned a specific role 
@@ -136,7 +140,7 @@ var removePermissionFromAllUsers = exports.removePermissionFromAllUsers = functi
  * @param  {String}  name Name of role
  * @return {Boolean}      [description]
  */
-var hasRole = exports.hasRole = function(rbac, role, cb) {
+function hasRole(rbac, role, cb) {
 	if(!this.role) {
 		return cb(null, false);
 	}
@@ -144,9 +148,9 @@ var hasRole = exports.hasRole = function(rbac, role, cb) {
 	//check existance of permission
 	rbac.hasRole(this.role, role, cb);
 	return this;
-};
+}
 
-var removeRole = exports.removeRole = function(cb) {
+function removeRole(cb) {
 	if(!this.role) {
 		return cb(null, false);
 	}
@@ -165,9 +169,9 @@ var removeRole = exports.removeRole = function(cb) {
 	});
 
 	return this;
-};
+}
 
-var removeRoleFromAllUsers = exports.removeRoleFromAllUsers = function(roleName, cb) {
+function removeRoleFromAllUsers(roleName, cb) {
 	this.update({role: roleName}, {role: null}, {multi: true}, function(err, num) {
 		if(err) {
 			return cb(err);
@@ -178,10 +182,9 @@ var removeRoleFromAllUsers = exports.removeRoleFromAllUsers = function(roleName,
 
 
 	return this;
-};
+}
 
-
-var setRole = exports.setRole = function(rbac, role, cb) {
+function setRole(rbac, role, cb) {
 	var _this = this;
 
 	if(this.role === role) {
@@ -211,20 +214,13 @@ var setRole = exports.setRole = function(rbac, role, cb) {
 			cb(null, user.role === _this.role);
 		});
 	});
-};
+}
 
 module.exports = function hrbacPlugin (schema, options) {
-	//prepare arguments
-	if(!options) {
-		options = {};
-	}
+	options = options || {};
 
-
-	//prepare parameters
 	schema.add({
-		//role assigned to the user
-		role : { type: String },
-		//additional permissions assigned to the user
+		role        : { type: String },
 		permissions : { type: [String] }
 	});
 
