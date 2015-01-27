@@ -67,11 +67,11 @@ function addPermission(rbac, action, resource, cb) {
 		}	
 
 		if(!permission) {
-			return cb(null, false);
+			return cb(new Error('Permission not exists'));
 		}
 
 		if(_.indexOf(_this.permissions, permission.getName()) !== -1) {
-			return cb(null, false);
+			return cb(new Error('Permission is already assigned'));
 		}
 
 		_this.permissions.push(permission.getName());
@@ -107,7 +107,7 @@ function removePermission(permissionName, cb) {
 		}
 
 		if(_.indexOf(user.permissions, permissionName) === -1) {
-			return cb(null, true);
+			return cb(new Error('Permission was not asssigned'));
 		}
 
 		cb(null, false);
@@ -116,7 +116,7 @@ function removePermission(permissionName, cb) {
 	return this;
 }
 
-function removePermissionFromAllUsers(permissionName, cb) {
+function removePermissionFromCollection(permissionName, cb) {
 	this.update({
 		permissions: permissionName
 	}, {
@@ -171,15 +171,18 @@ function removeRole(cb) {
 	return this;
 }
 
-function removeRoleFromAllUsers(roleName, cb) {
-	this.update({role: roleName}, {role: null}, {multi: true}, function(err, num) {
+function removeRoleFromCollection(roleName, cb) {
+	this.update({
+		role: roleName
+	}, {
+		role: null
+	}, { multi: true }, function(err, num) {
 		if(err) {
 			return cb(err);
 		}
 
         return cb(null, true);
     });
-
 
 	return this;
 }
@@ -235,6 +238,6 @@ module.exports = function hrbacPlugin (schema, options) {
 
 	schema.methods.getScope = getScope;
 
-	schema.statics.removeRoleFromAllUsers = removeRoleFromAllUsers;
-	schema.statics.removePermissionFromAllUsers = removePermissionFromAllUsers;
+	schema.statics.removeRoleFromCollection = removeRoleFromCollection;
+	schema.statics.removePermissionFromCollection = removePermissionFromCollection;
 };
