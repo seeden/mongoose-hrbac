@@ -93,7 +93,7 @@ function addPermission(rbac, action, resource, cb) {
 
 function removePermission(permissionName, cb) {
 	if(_.indexOf(this.permissions, permissionName) === -1) {
-		return cb(null, false);
+		return cb(new Error('Permission was not asssigned'));
 	}
 
 	this.permissions = _.without(this.permissions, permissionName);
@@ -106,11 +106,11 @@ function removePermission(permissionName, cb) {
 			return cb(new Error('User is undefined'));
 		}
 
-		if(_.indexOf(user.permissions, permissionName) === -1) {
-			return cb(new Error('Permission was not asssigned'));
+		if(_.indexOf(user.permissions, permissionName) !== -1) {
+			return cb(new Error('Permission was not removed'));
 		}
 
-		cb(null, false);
+		cb(null, true);
 	});
 
 	return this;
