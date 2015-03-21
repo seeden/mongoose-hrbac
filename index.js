@@ -38,7 +38,7 @@ function can(rbac, action, resource, cb) {
 		}
 
 		//check user additional permissions
-		if(_.indexOf(_this.permissions, permission.getName()) !== -1) {
+		if(_.indexOf(_this.permissions, permission.name) !== -1) {
 			return cb(null, true);
 		}
 
@@ -70,11 +70,11 @@ function addPermission(rbac, action, resource, cb) {
 			return cb(new Error('Permission not exists'));
 		}
 
-		if(_.indexOf(_this.permissions, permission.getName()) !== -1) {
+		if(_.indexOf(_this.permissions, permission.name) !== -1) {
 			return cb(new Error('Permission is already assigned'));
 		}
 
-		_this.permissions.push(permission.getName());
+		_this.permissions.push(permission.name);
 		_this.save(function(err, user) {
 			if(err) {
 				return cb(err);
@@ -204,7 +204,7 @@ function setRole(rbac, role, cb) {
 			return cb(new Error('Role does not exists'));		
 		}
 
-		_this.role = role.getName();
+		_this.role = role.name;
 		_this.save(function(err, user) {
 			if(err) {
 				return cb(err);
