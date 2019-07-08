@@ -18,11 +18,12 @@
     "role"
   ],
   "scripts": {
-    "prepublish": "npm run build",
+    "prepublish": "npm run snyk-protect; npm run build",
     "build": "node ./node_modules/gulp/bin/gulp.js build",
     "test": "babel-node ./node_modules/gulp/bin/gulp.js test",
     "eslint": "node ./node_modules/eslint/bin/eslint.js ./src || exit 0",
-    "eslintautofix": "node ./node_modules/eslint/bin/eslint.js --fix --ext .js,.jsx ./src"
+    "eslintautofix": "node ./node_modules/eslint/bin/eslint.js --fix --ext .js,.jsx ./src",
+    "snyk-protect": "snyk protect"
   },
   "private": false,
   "license": "MIT",
@@ -31,7 +32,8 @@
     "node": ">= 0.10.0"
   },
   "dependencies": {
-    "lodash": "^4.6.1"
+    "lodash": "^4.6.1",
+    "snyk": "^1.192.3"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
@@ -54,5 +56,6 @@
     "mongoose": "^4.4.6",
     "should": "^8.2.2",
     "supertest": "^1.2.0"
-  }
+  },
+  "snyk": true
 }
